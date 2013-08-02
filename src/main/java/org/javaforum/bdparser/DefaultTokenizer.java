@@ -15,18 +15,23 @@ public class DefaultTokenizer implements Tokenizer {
 
     private Map<String, Operation> operations = new HashMap<String, Operation>();
     private Map<String, Function> functions = new HashMap<String, Function>();
-    private Map<String, BigDecimal> constants = new HashMap<String, BigDecimal>();
+    private Map<String, NumberToken> constants = new HashMap<String, NumberToken>();
+    private List<Map<String, ? extends Token>> maps = new ArrayList<Map<String, ? extends Token>>();
 
     public DefaultTokenizer() {
-        for(Operation op : Operation.values()) {
-          addOperation(op);
+        for (Operation op : Operation.values()) {
+            addOperation(op);
         }
 
-        for(Function function : Function.values()) {
-           addFunction(function);
+        for (Function function : Function.values()) {
+            addFunction(function);
         }
         addConstant("pi", BigDecimal.valueOf(Math.PI));
         addConstant("e", BigDecimal.valueOf(Math.E));
+
+        maps.add(constants);
+        maps.add(functions);
+        maps.add(operations);
     }
 
     public void addOperation(Operation operation) {
@@ -38,7 +43,7 @@ public class DefaultTokenizer implements Tokenizer {
     }
 
     public void addConstant(String name, BigDecimal value) {
-        constants.put(name, value);
+        constants.put(name, new NumberToken(value));
     }
 
     public List<Token> tokenize(String formula) {
@@ -50,73 +55,73 @@ public class DefaultTokenizer implements Tokenizer {
         while (offset < length) {
             char current = formula.charAt(offset);
 
-            if (!Character.isWhitespace(current)) {
-                int ci = "(),".indexOf(current);
-                if (ci != -1) {
-                    parts.add(CharToken.values()[ci]);
-                    offset++;
-                } else if (Character.isDigit(current) || current == '.') {
-                    int end = offset + 1;
-                    boolean pointSeen = current == '.';
-
-                    while (end < length) {
-                        char next = formula.charAt(end);
-                        if (Character.isDigit(next)) {
-                            end++;
-                        } else if (next == '.' && !pointSeen) {
-                            pointSeen = true;
-                            end++;
-                        } else {
-                            break;
-                        }
-                    }
-                    parts.add(new NumberToken(new BigDecimal(formula.substring(offset, end))));
-                    offset = end;
-                } else {
-
-                    int bestLength = 0;
-                    String best = null;
-
-                    for (String check : constants.keySet()) {
-                        if (formula.startsWith(check, offset) && check.length() > bestLength) {
-                            bestLength = check.length();
-                            best = check;
-                            parts.add(new NumberToken(constants.get(check)));
-                            break;
-                        }
-                    }
-                    if (best == null) {
-                        for (String check : functions.keySet()) {
-                            if (formula.startsWith(check, offset) && check.length() > bestLength) {
-                                bestLength = check.length();
-                                best = check;
-                                parts.add(functions.get(check));
-                                break;
-                            }
-                        }
-                    }
-
-                    if (best == null) {
-                        for (String check : operations.keySet()) {
-                            if (formula.startsWith(check, offset) && check.length() > bestLength) {
-                                bestLength = check.length();
-                                best = check;
-                                parts.add(operations.get(check));
-                                break;
-                            }
-                        }
-                    }
-
-                    if (best == null) {
-                        throw new IllegalArgumentException("Something is wrong with this formula");
-                    }
-                    offset += bestLength;
-                }
-            } else {
+            if (Character.isWhitespace(current)) {
                 offset++;
+            } else if (readCharToken(current, parts)) {
+                offset++;
+            } else if (Character.isDigit(current) || current == '.') {
+                offset = readNumberToken(current, offset, formula, parts);
+            } else {
+
+                int tokenLength = 0;
+                for(Map<String, ? extends Token> map : maps) {
+                   tokenLength = readOtherToken(map, offset, formula, parts);
+                    if (tokenLength > 0) {
+                        break;
+                    }
+                }
+                if (tokenLength == 0) {
+                    throw new IllegalArgumentException("Something is wrong with this formula");
+                }
+                offset += tokenLength;
             }
         }
         return parts;
+    }
+
+    private boolean readCharToken(char ch, List<Token> parts) {
+        switch (ch) {
+            case '(':
+                parts.add(CharToken.OPEN);
+                return true;
+            case ')':
+                parts.add(CharToken.CLOSE);
+                return true;
+            case ',':
+                parts.add(CharToken.SEPARATOR);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private int readNumberToken(char current, int offset, String formula, List<Token> parts) {
+        int end = offset + 1;
+        boolean pointSeen = current == '.';
+
+        while (end < formula.length()) {
+            char next = formula.charAt(end);
+            if (Character.isDigit(next)) {
+                end++;
+            } else if (next == '.' && !pointSeen) {
+                pointSeen = true;
+                end++;
+            } else {
+                break;
+            }
+        }
+        parts.add(new NumberToken(new BigDecimal(formula.substring(offset, end))));
+        return end;
+    }
+
+    private int readOtherToken(Map<String,? extends Token> map, int offset, String formula, List<Token> parts) {
+        for (String check : map.keySet()) {
+            if (formula.startsWith(check, offset) ) {
+                parts.add(map.get(check));
+                return check.length();
+            }
+        }
+        return 0;
     }
 
     public List<String> getFunctionNames() {

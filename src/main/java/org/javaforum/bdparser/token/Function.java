@@ -18,7 +18,7 @@ public enum Function implements Token {
             return result;
         }
 
-        public boolean arity(int count) {
+        public boolean hasArity(int count) {
             return count > 0;
         }
     },
@@ -32,7 +32,7 @@ public enum Function implements Token {
             return result;
         }
 
-        public boolean arity(int count) {
+        public boolean hasArity(int count) {
             return count > 0;
         }
     },
@@ -43,7 +43,7 @@ public enum Function implements Token {
             return values[0].abs();
         }
 
-        public boolean arity(int count) {
+        public boolean hasArity(int count) {
             return count == 1;
         }
     };
@@ -58,7 +58,7 @@ public enum Function implements Token {
         return name;
     }
 
-    public abstract boolean arity(int count);
+    public abstract boolean hasArity(int count);
 
     public abstract BigDecimal calculate(BigDecimal... values);
 

@@ -138,17 +138,17 @@ public class Parser {
                                 !(formula.get(i - 1) instanceof ArgumentToken))) {
                     Token arguments = formula.get(i + 1);
                     BigDecimal[] values = null;
-                    for(ArgumentToken argument : Tokens.argument(arguments)) {
+                    for (ArgumentToken argument : Tokens.argument(arguments)) {
                         values = argument.getArguments();
                     }
-                    for(NumberToken numberToken : Tokens.number(arguments)) {
+                    for (NumberToken numberToken : Tokens.number(arguments)) {
                         values = new BigDecimal[]{numberToken.getNumber()};
                     }
                     if (values == null) {
                         throw new IllegalArgumentException("Missing arguments for " + function + ", found: " + arguments);
                     }
 
-                    if (! function.arity(values.length)) {
+                    if (!function.hasArity(values.length)) {
                         throw new IllegalArgumentException("Wrong number of arguments for " + function + ", found: " +
                                 values.length);
                     }
