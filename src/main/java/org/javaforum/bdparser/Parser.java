@@ -37,16 +37,16 @@ public class Parser {
         checkBalance(tokens);
 
         while (tokens.size() > 1) {
-            parse(tokens, 0);
+            parseFrom(tokens, 0);
         }
 
         if (tokens.isEmpty()) {
-            throw new IllegalArgumentException("Empty formula");
+            throw new ParseException("Empty formula");
         }
         for (NumberToken numberToken : Tokens.number(tokens.get(0))) {
             return numberToken.getNumber();
         }
-        throw new IllegalArgumentException("Unknown error in formula");
+        throw new AssertionError("Got no result"); //this would be a real WTF that should not happen
     }
 
     private void checkBalance(List<Token> tokens) {
@@ -58,21 +58,21 @@ public class Parser {
                 count--;
             }
             if (count < 0) {
-                throw new IllegalArgumentException("Closing parenthesis without opening parenthesis");
+                throw new ParseException("Closing parenthesis without opening parenthesis");
             }
             if (token == SEPARATOR && count == 0) {
-                throw new IllegalArgumentException("Comma outside of parenthesis");
+                throw new ParseException("Comma outside of parenthesis");
             }
         }
 
         if (count != 0) {
-            throw new IllegalArgumentException(count > 0
+            throw new ParseException(count > 0
                     ? "Closing parenthesis is missing"
                     : "Too many closing parentheses");
         }
     }
 
-    private void parse(List<Token> formula, int offset) {
+    private void parseFrom(List<Token> formula, int offset) {
 
         if (formula.get(offset) == OPEN) {
             formula.remove(offset);
@@ -92,14 +92,14 @@ public class Parser {
         while (begin + length < formula.size()) {
             Token end = formula.get(begin + length);
             if (end == OPEN) {
-                parse(formula, begin + length);
+                parseFrom(formula, begin + length);
             } else if (end == CLOSE || end == SEPARATOR) {
 
                 if (length == 0) {
-                    throw new IllegalArgumentException("Missing expression, e.g. empty parentheses");
+                    throw new ParseException("Missing expression, e.g. empty parentheses");
                 }
 
-                parse(formula, begin, length);
+                parseFromTo(formula, begin, length);
                 formula.remove(begin + 1);
                 begin++;
                 length = 0;
@@ -114,7 +114,7 @@ public class Parser {
         }
 
         if (!done && begin + length == formula.size()) {
-            parse(formula, begin, length);
+            parseFromTo(formula, begin, length);
             begin++;
         }
 
@@ -128,37 +128,9 @@ public class Parser {
         }
     }
 
-    private void parse(List<Token> formula, int offset, int length) {
-        //evaluate all functions, starting from the end
-        //which automatically takes care of functions in functions
-        for (int i = offset + length - 2; i >= offset; i--) {
-            for (Function function : Tokens.function(formula.get(i))) {
-                if (i == offset ||
-                        (!(formula.get(i - 1) instanceof NumberToken) &&
-                                !(formula.get(i - 1) instanceof ArgumentToken))) {
-                    Token arguments = formula.get(i + 1);
-                    BigDecimal[] values = null;
-                    for (ArgumentToken argument : Tokens.argument(arguments)) {
-                        values = argument.getArguments();
-                    }
-                    for (NumberToken numberToken : Tokens.number(arguments)) {
-                        values = new BigDecimal[]{numberToken.getNumber()};
-                    }
-                    if (values == null) {
-                        throw new IllegalArgumentException("Missing arguments for " + function + ", found: " + arguments);
-                    }
+    private void parseFromTo(List<Token> formula, int offset, int length) {
+        length = evalFunctions(formula, offset, length);
 
-                    if (!function.hasArity(values.length)) {
-                        throw new IllegalArgumentException("Wrong number of arguments for " + function + ", found: " +
-                                values.length);
-                    }
-
-                    formula.remove(i + 1);
-                    formula.set(i, new NumberToken(function.calculate(values)));
-                    length--;
-                }
-            }
-        }
 
         while (length > 1) {
             int current = length;
@@ -189,7 +161,7 @@ public class Parser {
                         }
 
                         if (!(left instanceof NumberToken) || !(right instanceof NumberToken)) {
-                            throw new IllegalArgumentException("Operation not between numbers");
+                            throw new ParseException("Operator not between numbers");
                         }
 
                         formula.set(i, new NumberToken(operation.calculate(
@@ -204,9 +176,43 @@ public class Parser {
             }
 
             if (length == current) {
-                throw new IllegalArgumentException("Formula can't be resolved");
+                throw new ParseException("Formula can't be resolved");
             }
         }
+    }
+
+    //evaluate all functions, starting from the end
+    //which automatically takes care of functions in functions
+    private int evalFunctions(List<Token> formula, int offset, int length) {
+        for (int i = offset + length - 2; i >= offset; i--) {
+            for (Function function : Tokens.function(formula.get(i))) {
+                if (i == offset ||
+                        (!(formula.get(i - 1) instanceof NumberToken) &&
+                                !(formula.get(i - 1) instanceof ArgumentToken))) {
+                    Token arguments = formula.get(i + 1);
+                    BigDecimal[] values = null;
+                    for (ArgumentToken argument : Tokens.argument(arguments)) {
+                        values = argument.getArguments();
+                    }
+                    for (NumberToken numberToken : Tokens.number(arguments)) {
+                        values = new BigDecimal[]{numberToken.getNumber()};
+                    }
+                    if (values == null) {
+                        throw new ParseException("Missing arguments for " + function + ", found: " + arguments);
+                    }
+
+                    if (!function.hasArity(values.length)) {
+                        throw new ParseException("Wrong number of arguments for " + function + ", found: " +
+                                values.length);
+                    }
+
+                    formula.remove(i + 1);
+                    formula.set(i, new NumberToken(function.calculate(values)));
+                    length--;
+                }
+            }
+        }
+        return length;
     }
 
 

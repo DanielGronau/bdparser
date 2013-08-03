@@ -1,5 +1,7 @@
 package org.javaforum.bdparser.token;
 
+import org.javaforum.bdparser.ParseException;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -51,7 +53,7 @@ public enum Operation implements Token {
                         new BigDecimal(Math.pow(dn1, remainderOf2.doubleValue()));
                 result = intPow.multiply(doublePow);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new ParseException("Problem while calculating the power", e);
             }
             if (signOf2 == -1)
                 result = BigDecimal.ONE.divide(result, scale, roundingMode);

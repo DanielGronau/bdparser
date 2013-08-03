@@ -55,55 +55,55 @@ public class ParserTest {
         assertEquals("" + 2 * Math.PI, parser.parse("2*pi").toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void testIncompleteOperation() {
         Parser parser = new Parser();
         parser.parse("3+5+");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void testMissingOperator() {
         Parser parser = new Parser();
         parser.parse("3 5");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void testWrongArity() {
         Parser parser = new Parser();
         parser.parse("abs(3,5)");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void unbalancedParentheses1() {
         Parser parser = new Parser();
         parser.parse("3 + (4");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void unbalancedParentheses2() {
         Parser parser = new Parser();
         parser.parse("3 + )4");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void unbalancedParentheses3() {
         Parser parser = new Parser();
         parser.parse("3 + )4(");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void unbalancedParentheses4() {
         Parser parser = new Parser();
         parser.parse("(3 + )4)");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void emptyParentheses() {
         Parser parser = new Parser();
         parser.parse("3 + () 5");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ParseException.class)
     public void multipleDots() {
         Parser parser = new Parser();
         parser.parse("3.5.");

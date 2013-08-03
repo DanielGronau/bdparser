@@ -71,7 +71,7 @@ public class DefaultTokenizer implements Tokenizer {
                     }
                 }
                 if (tokenLength == 0) {
-                    throw new IllegalArgumentException("Something is wrong with this formula");
+                    throw new ParseException("Could not tokenize formula [" + formula + "] at position " + offset);
                 }
                 offset += tokenLength;
             }
@@ -110,7 +110,13 @@ public class DefaultTokenizer implements Tokenizer {
                 break;
             }
         }
-        parts.add(new NumberToken(new BigDecimal(formula.substring(offset, end))));
+        BigDecimal result = null;
+        try {
+            result = new BigDecimal(formula.substring(offset, end));
+        } catch (NumberFormatException ex) {
+            throw new ParseException("Couldn't tokenize number " + formula.substring(offset, end), ex);
+        }
+        parts.add(new NumberToken(result));
         return end;
     }
 
