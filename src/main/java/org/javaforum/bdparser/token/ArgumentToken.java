@@ -2,13 +2,14 @@ package org.javaforum.bdparser.token;
 
 import java.math.BigDecimal;
 
+import static java.util.Objects.requireNonNull;
+
 public class ArgumentToken implements Token {
 
-    private BigDecimal[] bigDecimals;
+    private final BigDecimal[] bigDecimals;
 
     public ArgumentToken(BigDecimal... bigDecimals) {
-        assert bigDecimals != null;
-        this.bigDecimals = bigDecimals;
+        this.bigDecimals = requireNonNull(bigDecimals, "Argument 'bigDecimals' must be not null");
     }
 
     public BigDecimal[] getArguments() {
