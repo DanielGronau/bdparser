@@ -1,17 +1,17 @@
 package org.javaforum.bdparser.token;
 
 public enum CharToken implements Token {
-    OPEN('('),
-    CLOSE(')'),
-    SEPARATOR(',');
+    OPEN("("),
+    CLOSE(")"),
+    SEPARATOR(",");
 
-    private final char symbol;
+    private final String symbol;
 
-    CharToken(char symbol) {
+    CharToken(String symbol) {
         this.symbol = symbol;
     }
 
-    public char getSymbol() {
+    public String getSymbol() {
         return symbol;
     }
 

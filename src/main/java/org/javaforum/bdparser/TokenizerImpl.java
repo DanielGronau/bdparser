@@ -5,52 +5,49 @@ import org.javaforum.bdparser.token.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static java.util.function.Function.identity;
+
 /**
  * An "empty" tokenizer without any operations, functions or constants
  */
 public class TokenizerImpl implements Tokenizer {
 
-    protected final Map<String, Operation> operations = new HashMap<String, Operation>();
-    protected final Map<String, Function> functions = new HashMap<String, Function>();
-    protected final Map<String, NumberToken> constants = new HashMap<String, NumberToken>();
-    protected final List<Map<String, ? extends Token>> maps = new ArrayList<Map<String, ? extends Token>>();
+    private final static Comparator<String> LONGEST_FIRST_COMPARATOR = Comparator.comparingInt(String::length).reversed()
+            .thenComparing(identity());
+
+    private final TreeMap<String, Token> treeMap = new TreeMap<>(LONGEST_FIRST_COMPARATOR);
 
     public void addOperation(String name, Operation operation) {
-        operations.put(name, operation);
+        treeMap.put(name, operation);
     }
 
     public void addFunction(String name, Function function) {
-        functions.put(name, function);
+        treeMap.put(name, function);
     }
 
     public void addConstant(String name, BigDecimal value) {
-        constants.put(name, new NumberToken(value));
+        treeMap.put(name, new NumberToken(value));
+    }
+
+    {
+        for (CharToken token : CharToken.values()) {
+            treeMap.put(token.getSymbol(), token);
+        }
     }
 
     public List<Token> tokenize(String formula) {
-
         int offset = 0;
         int length = formula.length();
         List<Token> parts = new ArrayList<>();
 
         while (offset < length) {
             char current = formula.charAt(offset);
-
             if (Character.isWhitespace(current)) {
-                offset++;
-            } else if (readCharToken(current, parts)) {
                 offset++;
             } else if (Character.isDigit(current) || current == '.') {
                 offset = readNumberToken(current, offset, formula, parts);
             } else {
-
-                int tokenLength = 0;
-                for (Map<String, ? extends Token> map : maps) {
-                    tokenLength = readOtherToken(map, offset, formula, parts);
-                    if (tokenLength > 0) {
-                        break;
-                    }
-                }
+                int tokenLength = readOtherToken(treeMap, offset, formula, parts);
                 if (tokenLength == 0) {
                     throw new ParseException("Could not tokenize formula [" + formula + "] at position " + offset);
                 }
@@ -58,16 +55,6 @@ public class TokenizerImpl implements Tokenizer {
             }
         }
         return parts;
-    }
-
-    private boolean readCharToken(char ch, List<Token> parts) {
-        for (CharToken token : CharToken.values()) {
-            if (token.getSymbol() == ch) {
-                parts.add(token);
-                return true;
-            }
-        }
-        return false;
     }
 
     private int readNumberToken(char current, int offset, String formula, List<Token> parts) {
@@ -102,11 +89,5 @@ public class TokenizerImpl implements Tokenizer {
             }
         }
         return 0;
-    }
-
-    public List<String> getFunctionNames() {
-        List<String> list = new ArrayList<String>(functions.keySet());
-        Collections.sort(list);
-        return list;
     }
 }

@@ -32,10 +32,6 @@ public class DefaultTokenizer extends TokenizerImpl {
 
         addConstant("pi", CalcUtils.PI);
         addConstant("e", CalcUtils.E);
-
-        maps.add(constants);
-        maps.add(functions);
-        maps.add(operations);
     }
 
 }
