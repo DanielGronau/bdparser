@@ -4,6 +4,7 @@ import org.javaforum.bdparser.token.*;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.function.Function.identity;
 
@@ -16,12 +17,17 @@ public class TokenizerImpl implements Tokenizer {
             .thenComparing(identity());
 
     private final TreeMap<String, Token> treeMap = new TreeMap<>(LONGEST_FIRST_COMPARATOR);
+    {
+        for (CharToken token : CharToken.values()) {
+            treeMap.put(token.getSymbol(), token);
+        }
+    }
 
-    public void addOperation(String name, Operation operation) {
+    public void addOperation(String name, OperationToken operation) {
         treeMap.put(name, operation);
     }
 
-    public void addFunction(String name, Function function) {
+    public void addFunction(String name, FunctionToken function) {
         treeMap.put(name, function);
     }
 
@@ -29,40 +35,40 @@ public class TokenizerImpl implements Tokenizer {
         treeMap.put(name, new NumberToken(value));
     }
 
-    {
-        for (CharToken token : CharToken.values()) {
-            treeMap.put(token.getSymbol(), token);
-        }
-    }
-
     public List<Token> tokenize(String formula) {
-        int offset = 0;
-        int length = formula.length();
-        List<Token> parts = new ArrayList<>();
-
-        while (offset < length) {
-            char current = formula.charAt(offset);
-            if (Character.isWhitespace(current)) {
-                offset++;
-            } else if (Character.isDigit(current) || current == '.') {
-                offset = readNumberToken(current, offset, formula, parts);
-            } else {
-                int tokenLength = readOtherToken(treeMap, offset, formula, parts);
-                if (tokenLength == 0) {
-                    throw new ParseException("Could not tokenize formula [" + formula + "] at position " + offset);
-                }
-                offset += tokenLength;
-            }
+        State state = new State(formula);
+        while (state.offset < formula.length()) {
+            Optional<State> newState = attempt(
+                    state,
+                    this::readWhitspace,
+                    this::readNumber,
+                    this::readOther);
+            int offset = state.offset;
+            state = newState.orElseThrow(() ->
+                    new ParseException("Could not tokenize formula [" + formula + "] at position " + offset));
         }
-        return parts;
+        return state.parts;
     }
 
-    private int readNumberToken(char current, int offset, String formula, List<Token> parts) {
-        int end = offset + 1;
-        boolean pointSeen = current == '.';
+    private Optional<State> readWhitspace(State state) {
+        return Optional.of(Character.isWhitespace(state.current()))
+                .filter(x -> x)
+                .map(b -> {
+                    state.inc(1);
+                    return state;
+                });
+    }
 
-        while (end < formula.length()) {
-            char next = formula.charAt(end);
+    private Optional<State> readNumber(State state) {
+        if (!Character.isDigit(state.current()) && state.current() != '.') {
+            return Optional.empty();
+        }
+
+        int end = state.offset + 1;
+        boolean pointSeen = state.current() == '.';
+
+        while (end < state.formula.length()) {
+            char next = state.formula.charAt(end);
             if (Character.isDigit(next)) {
                 end++;
             } else if (next == '.' && !pointSeen) {
@@ -72,22 +78,54 @@ public class TokenizerImpl implements Tokenizer {
                 break;
             }
         }
+        String substring = state.formula.substring(state.offset, end);
         try {
-            BigDecimal result = new BigDecimal(formula.substring(offset, end));
-            parts.add(new NumberToken(result));
+            BigDecimal result = new BigDecimal(substring);
+            return Optional.of(state
+                    .add(new NumberToken(result))
+                    .inc(substring.length()));
         } catch (NumberFormatException ex) {
-            throw new ParseException("Couldn't tokenize number " + formula.substring(offset, end), ex);
+            throw new ParseException("Couldn't tokenize number " + substring, ex);
         }
-        return end;
     }
 
-    private int readOtherToken(Map<String, ? extends Token> map, int offset, String formula, List<Token> parts) {
-        for (String check : map.keySet()) {
-            if (formula.startsWith(check, offset)) {
-                parts.add(map.get(check));
-                return check.length();
-            }
+    private Optional<State> readOther(State state) {
+        return treeMap.keySet().stream()
+                .filter(key -> state.formula.startsWith(key, state.offset))
+                .findFirst()
+                .map(key -> state.add(treeMap.get(key)).inc(key.length()));
+    }
+
+    @SafeVarargs
+    private final Optional<State> attempt(State current, Function<State, Optional<State>>... fns) {
+        return Arrays.stream(fns)
+                .reduce(
+                        Optional.empty(),
+                        (newState, fn) -> newState.isPresent() ? newState : fn.apply(current),
+                        (x, y) -> x);
+    }
+
+    private static class State {
+        final String formula;
+        int offset = 0;
+        List<Token> parts = new ArrayList<>();
+
+        State(String formula) {
+            this.formula = formula;
         }
-        return 0;
+
+        char current() {
+            return formula.charAt(offset);
+        }
+
+        State inc(int length) {
+            offset += length;
+            return this;
+        }
+
+        State add(Token token) {
+            parts.add(token);
+            return this;
+        }
     }
 }

@@ -1,12 +1,12 @@
 package org.javaforum.bdparser.operations;
 
 import org.javaforum.bdparser.ParseException;
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.OperationToken;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-public class Remainder implements Operation {
+public class Remainder implements OperationToken {
 
     private static MathContext MATH_CONTEXT = MathContext.DECIMAL64;
 
@@ -28,5 +28,10 @@ public class Remainder implements Operation {
 
     public static MathContext getMathContext() {
         return MATH_CONTEXT;
+    }
+
+    @Override
+    public String toString() {
+        return "Remainder";
     }
 }

@@ -1,6 +1,8 @@
 The bdparser library provides an easy to use parser for mathematical formulas. It uses BigDecimal values in order
 to avoid precision problems of double. It supports constants, operations and functions, which can be easily added.
 A functions may take a varying number of arguments, e.g. the built-in min function supports 1..inf arguments.
-Operator precedence is respected, and there is a special handling for unary + and - (however you can't add unary
-operators yourself).
+Operator precedence is respected, and there is a special handling for unary + and -.
+
+This library is based on code written by Benjamin "Beni" Sigg.
+
 

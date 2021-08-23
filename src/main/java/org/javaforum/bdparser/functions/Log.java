@@ -1,11 +1,11 @@
 package org.javaforum.bdparser.functions;
 
 import org.javaforum.bdparser.CalcUtils;
-import org.javaforum.bdparser.token.Function;
+import org.javaforum.bdparser.token.FunctionToken;
 
 import java.math.BigDecimal;
 
-public class Log implements Function {
+public class Log implements FunctionToken {
 
     @Override
     public boolean hasArity(int count) {

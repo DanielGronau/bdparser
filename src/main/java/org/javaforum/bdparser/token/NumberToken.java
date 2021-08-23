@@ -15,4 +15,8 @@ public class NumberToken implements Token {
         return bd;
     }
 
+    @Override
+    public String toString() {
+        return bd.toString();
+    }
 }

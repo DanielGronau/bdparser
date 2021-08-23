@@ -1,7 +1,7 @@
 package org.javaforum.bdparser;
 
-import org.javaforum.bdparser.token.Function;
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.FunctionToken;
+import org.javaforum.bdparser.token.OperationToken;
 import org.javaforum.bdparser.token.Token;
 
 import java.math.BigDecimal;
@@ -12,9 +12,9 @@ public interface Tokenizer {
 
     List<Token> tokenize(String formula);
 
-    void addOperation(String name, Operation operation);
+    void addOperation(String name, OperationToken operation);
 
-    void addFunction(String name , Function function);
+    void addFunction(String name , FunctionToken function);
 
     void addConstant(String name, BigDecimal value);
 

@@ -15,6 +15,7 @@ public class ParserTest {
         assertCloseTo("7", "7");
         assertCloseTo("7", "7.000");
         assertCloseTo("-7", "-7");
+        assertCloseTo("0.2", ".2");
         assertCloseTo("3", "1+2");
         assertCloseTo("6", "1+2+3");
         assertCloseTo("-1", "1-2");

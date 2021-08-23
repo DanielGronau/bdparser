@@ -1,13 +1,12 @@
 package org.javaforum.bdparser.operations;
 
 import org.javaforum.bdparser.ParseException;
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.OperationToken;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 
-public class Divide implements Operation {
+public class Divide implements OperationToken {
 
     private static MathContext MATH_CONTEXT = MathContext.DECIMAL64;
 
@@ -29,5 +28,10 @@ public class Divide implements Operation {
 
     public static MathContext getMathContext() {
         return MATH_CONTEXT;
+    }
+
+    @Override
+    public String toString() {
+        return "Divide";
     }
 }

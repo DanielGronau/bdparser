@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * http://www.java-forum.org/allgemeines/12306-parser-fuer-mathematische-formeln.html
  * written by Benjamin "Beni" Sigg
  */
-public interface Function extends Token {
+public interface FunctionToken extends Token {
 
     boolean hasArity(int count);
 

@@ -1,6 +1,7 @@
 package org.javaforum.bdparser.token;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static java.util.Objects.requireNonNull;
 
@@ -16,4 +17,8 @@ public class ArgumentToken implements Token {
         return bigDecimals;
     }
 
+    @Override
+    public String toString() {
+        return "args" + Arrays.toString(bigDecimals);
+    }
 }

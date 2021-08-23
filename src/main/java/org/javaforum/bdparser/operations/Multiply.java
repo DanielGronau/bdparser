@@ -1,10 +1,10 @@
 package org.javaforum.bdparser.operations;
 
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.OperationToken;
 
 import java.math.BigDecimal;
 
-public class Multiply implements Operation {
+public class Multiply implements OperationToken {
 
     @Override
     public int getPriority() {
@@ -13,5 +13,10 @@ public class Multiply implements Operation {
 
     public BigDecimal calculate(BigDecimal a, BigDecimal b) {
         return a.multiply(b);
+    }
+
+    @Override
+    public String toString() {
+        return "Multiply";
     }
 }

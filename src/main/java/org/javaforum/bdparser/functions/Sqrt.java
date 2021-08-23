@@ -2,12 +2,12 @@ package org.javaforum.bdparser.functions;
 
 import org.javaforum.bdparser.CalcUtils;
 import org.javaforum.bdparser.ParseException;
-import org.javaforum.bdparser.token.Function;
+import org.javaforum.bdparser.token.FunctionToken;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-public class Sqrt implements Function {
+public class Sqrt implements FunctionToken {
 
     private static MathContext MATH_CONTEXT = MathContext.DECIMAL64;
 

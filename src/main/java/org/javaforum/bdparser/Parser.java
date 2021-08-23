@@ -9,11 +9,6 @@ import java.util.Optional;
 
 import static org.javaforum.bdparser.token.CharToken.*;
 
-/**
- * Code adapted from
- * http://www.java-forum.org/allgemeines/12306-parser-fuer-mathematische-formeln.html
- * written by Benjamin "Beni" Sigg
- */
 public class Parser {
 
     private final Tokenizer tokenizer;
@@ -44,7 +39,7 @@ public class Parser {
         if (tokens.isEmpty()) {
             throw new ParseException("Empty formula");
         }
-        Optional<NumberToken> numOpt =  Tokens.number(tokens.get(0));
+        Optional<NumberToken> numOpt = Tokens.number(tokens.get(0));
         if (numOpt.isPresent()) {
             return numOpt.get().getNumber();
         }
@@ -68,9 +63,7 @@ public class Parser {
         }
 
         if (count != 0) {
-            throw new ParseException(count > 0
-                    ? "Closing parenthesis is missing"
-                    : "Too many closing parentheses");
+            throw new ParseException("Closing parenthesis is missing");
         }
     }
 
@@ -145,17 +138,17 @@ public class Parser {
                                     .map(op -> Math.max(prio, op.getPriority())).orElse(prio), Math::max);
 
             for (int i = offset + 1; i < offset + length - 1; i++) {
-                Optional<Operation> opOpt = Tokens.operation(formula.get(i));
+                Optional<OperationToken> opOpt = Tokens.operation(formula.get(i));
                 if (opOpt.isPresent()) {
-                    Operation operation = opOpt.get();
+                    OperationToken operation = opOpt.get();
                     if (operation.getPriority() == priority) {
                         Token left = formula.get(i - 1);
                         Token right = formula.get(i + 1);
 
                         //fix unary + and - if necessary
-                        Optional<Operation> rightOpOpt = Tokens.operation(right);
+                        Optional<OperationToken> rightOpOpt = Tokens.operation(right);
                         if (rightOpOpt.isPresent()) {
-                            Operation rightOp = rightOpOpt.get();
+                            OperationToken rightOp = rightOpOpt.get();
                             if (rightOp.unaryFix() &&
                                     formula.get(i + 2) instanceof NumberToken) {
                                 formula.remove(i + 1);
@@ -191,11 +184,11 @@ public class Parser {
     //which automatically takes care of functions in functions
     private int evalFunctions(List<Token> formula, int offset, int length) {
         for (int i = offset + length - 2; i >= offset; i--) {
-            Optional<Function> funcOpt = Tokens.function(formula.get(i));
+            Optional<FunctionToken> funcOpt = Tokens.function(formula.get(i));
             if (funcOpt.isPresent() && (i == offset ||
                     !(formula.get(i - 1) instanceof NumberToken) &&
                             !(formula.get(i - 1) instanceof ArgumentToken))) {
-                Function function = funcOpt.get();
+                FunctionToken function = funcOpt.get();
                 Token arguments = formula.get(i + 1);
                 BigDecimal[] values = Tokens.argument(arguments).map(ArgumentToken::getArguments).orElse(null);
                 if (values == null) {

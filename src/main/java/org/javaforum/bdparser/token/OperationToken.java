@@ -12,11 +12,7 @@ import java.math.RoundingMode;
  * http://www.java-forum.org/allgemeines/12306-parser-fuer-mathematische-formeln.html
  * written by Benjamin "Beni" Sigg
  */
-public interface Operation extends Token {
-
-    static RoundingMode roundingMode = RoundingMode.HALF_UP;
-
-    static int scale = 16;
+public interface OperationToken extends Token {
 
     int getPriority();
 

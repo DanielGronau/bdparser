@@ -1,11 +1,11 @@
 package org.javaforum.bdparser.functions;
 
-import org.javaforum.bdparser.token.Function;
+import org.javaforum.bdparser.token.FunctionToken;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-public class Min implements Function {
+public class Min implements FunctionToken {
 
     public BigDecimal calculate(BigDecimal... values) {
         return Arrays.stream(values).reduce(BigDecimal::min)

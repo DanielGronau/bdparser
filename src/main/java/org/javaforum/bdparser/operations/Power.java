@@ -1,13 +1,12 @@
 package org.javaforum.bdparser.operations;
 
 import org.javaforum.bdparser.CalcUtils;
-import org.javaforum.bdparser.ParseException;
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.OperationToken;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-public class Power implements Operation {
+public class Power implements OperationToken {
 
     private static MathContext MATH_CONTEXT = MathContext.DECIMAL64;
 
@@ -26,5 +25,10 @@ public class Power implements Operation {
 
     public static void setMathContext(MathContext mathContext) {
         MATH_CONTEXT = mathContext;
+    }
+
+    @Override
+    public String toString() {
+        return "Power";
     }
 }

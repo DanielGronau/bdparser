@@ -1,7 +1,5 @@
 package org.javaforum.bdparser.token;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
 
 public enum Tokens {
@@ -23,12 +21,12 @@ public enum Tokens {
         return optional(token, ArgumentToken.class);
     }
 
-    public static Optional<Operation> operation(Token token) {
-        return optional(token, Operation.class);
+    public static Optional<OperationToken> operation(Token token) {
+        return optional(token, OperationToken.class);
     }
 
-    public static Optional<Function> function(Token token) {
-        return optional(token, Function.class);
+    public static Optional<FunctionToken> function(Token token) {
+        return optional(token, FunctionToken.class);
     }
 
 }

@@ -1,10 +1,10 @@
 package org.javaforum.bdparser.operations;
 
-import org.javaforum.bdparser.token.Operation;
+import org.javaforum.bdparser.token.OperationToken;
 
 import java.math.BigDecimal;
 
-public class Add implements Operation {
+public class Add implements OperationToken {
 
     @Override
     public int getPriority() {
@@ -18,5 +18,10 @@ public class Add implements Operation {
     @Override
     public boolean unaryFix() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Add";
     }
 }

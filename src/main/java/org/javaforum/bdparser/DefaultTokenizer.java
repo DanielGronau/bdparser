@@ -8,10 +8,6 @@ import java.math.BigDecimal;
 
 /**
  * A tokenizer using all default operations, functions and constants defined in this library
- * <p>
- * Code adapted from
- * http://www.java-forum.org/allgemeines/12306-parser-fuer-mathematische-formeln.html
- * written by Benjamin "Beni" Sigg
  */
 public class DefaultTokenizer extends TokenizerImpl {
 
