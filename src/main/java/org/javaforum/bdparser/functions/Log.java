@@ -16,4 +16,9 @@ public class Log implements Function {
     public BigDecimal calculate(BigDecimal... values) {
         return CalcUtils.log(BigDecimal.TEN, values[0]);
     }
+
+    @Override
+    public String toString() {
+        return "log()";
+    }
 }

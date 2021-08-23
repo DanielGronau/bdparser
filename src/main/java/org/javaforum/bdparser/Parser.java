@@ -203,11 +203,11 @@ public class Parser {
                             .map(n -> new BigDecimal[]{n}).orElse(null);
                 }
                 if (values == null) {
-                    throw new ParseException("Missing arguments for " + function + ", found: " + arguments);
+                    throw new ParseException("Missing arguments for function " + function + ", found: " + arguments);
                 }
 
                 if (!function.hasArity(values.length)) {
-                    throw new ParseException("Wrong number of arguments for " + function + ", found: " +
+                    throw new ParseException("Wrong number of arguments for function " + function + ", found: " +
                             values.length);
                 }
 

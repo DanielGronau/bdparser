@@ -16,4 +16,9 @@ public class Ln implements Function {
     public BigDecimal calculate(BigDecimal... values) {
         return CalcUtils.log(CalcUtils.E, values[0]);
     }
+
+    @Override
+    public String toString() {
+        return "ln()";
+    }
 }

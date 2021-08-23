@@ -15,4 +15,9 @@ public class Min implements Function {
     public boolean hasArity(int count) {
         return count > 0;
     }
+
+    @Override
+    public String toString() {
+        return "min()";
+    }
 }

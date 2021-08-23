@@ -15,4 +15,9 @@ public class Max implements Function {
     public boolean hasArity(int count) {
         return count > 0;
     }
+
+    @Override
+    public String toString() {
+        return "max()";
+    }
 }

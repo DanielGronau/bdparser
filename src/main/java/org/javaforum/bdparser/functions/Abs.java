@@ -13,4 +13,9 @@ public class Abs implements Function {
     public boolean hasArity(int count) {
         return count == 1;
     }
+
+    @Override
+    public String toString() {
+        return "abs()";
+    }
 }

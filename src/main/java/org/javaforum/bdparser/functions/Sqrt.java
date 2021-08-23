@@ -26,6 +26,11 @@ public class Sqrt implements Function {
         return CalcUtils.pow(values[0], HALF, MATH_CONTEXT);
     }
 
+    @Override
+    public String toString() {
+        return "sqrt()";
+    }
+
     public static MathContext getMathContext() {
         return MATH_CONTEXT;
     }

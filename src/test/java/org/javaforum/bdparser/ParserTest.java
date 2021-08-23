@@ -1,12 +1,10 @@
 package org.javaforum.bdparser;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserTest {
 
@@ -61,65 +59,76 @@ public class ParserTest {
         assertCloseTo("" + CalcUtils.PI.multiply(BigDecimal.valueOf(2)), "2*pi");
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void divisionByZero() {
-        new Parser().parse("6/0.00");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("6/0.00"));
+        assertEquals("Can't divide by zero", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void divisionByZero_Remainder() {
-        new Parser().parse("6 % 0.00");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("6 % 0.00"));
+        assertEquals("Can't divide by zero", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void incompleteOperation() {
-        new Parser().parse("3+5+");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3+5+"));
+        assertEquals("Formula can't be resolved", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void missingOperator() {
-        new Parser().parse("3 5");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3 5"));
+        assertEquals("Formula can't be resolved", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testWrongArity() {
-        new Parser().parse("abs(3,5)");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("abs(3,5)"));
+        assertEquals("Wrong number of arguments for function abs(), found: 2", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void unbalancedParentheses1() {
-        new Parser().parse("3 + (4");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3 + (4"));
+        assertEquals("Closing parenthesis is missing", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void unbalancedParentheses2() {
-        new Parser().parse("3 + )4");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3 + )4"));
+        assertEquals("Closing parenthesis without opening parenthesis", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void unbalancedParentheses3() {
-        new Parser().parse("3 + )4(");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3 + )4("));
+        assertEquals("Closing parenthesis without opening parenthesis", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void unbalancedParentheses4() {
-        new Parser().parse("(3 + )4)");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("(3 + )4)"));
+        assertEquals("Closing parenthesis without opening parenthesis", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void emptyParentheses() {
-        new Parser().parse("3 + () 5");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3 + () 5"));
+        assertEquals("Missing expression, e.g. empty parentheses", ex.getMessage());
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void multipleDots() {
-        new Parser().parse("3.5.");
+        Throwable ex = assertThrows(ParseException.class, () -> new Parser().parse("3.5."));
+        assertEquals("Couldn't tokenize number .", ex.getMessage());
     }
 
     private void assertCloseTo(String expected, String actual) {
         BigDecimal result = new Parser().parse(actual);
-        assertTrue("Result " + result + " of formula " + actual + " should be close to " + expected,
-                new BigDecimal(expected).subtract(result).abs().compareTo(EPSILON) < 0);
+        assertTrue(new BigDecimal(expected).subtract(result).abs().compareTo(EPSILON) < 0, 
+                "Result " + result + " of formula " + actual + " should be close to " + expected);
     }
 
 }
