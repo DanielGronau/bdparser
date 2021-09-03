@@ -40,7 +40,7 @@ public class TokenizerImpl implements Tokenizer {
         while (state.offset < formula.length()) {
             Optional<State> newState = attempt(
                     state,
-                    this::readWhitspace,
+                    this::readWhitespace,
                     this::readNumber,
                     this::readOther);
             int offset = state.offset;
@@ -50,7 +50,7 @@ public class TokenizerImpl implements Tokenizer {
         return state.parts;
     }
 
-    private Optional<State> readWhitspace(State state) {
+    private Optional<State> readWhitespace(State state) {
         return Optional.of(Character.isWhitespace(state.current()))
                 .filter(x -> x)
                 .map(b -> {
